@@ -1,0 +1,49 @@
+Public Sub highltigh()
+'
+' highltigh Macro
+'
+Dim rowa As Long
+Dim cola As Integer
+Dim colb As Integer
+Dim finl As Integer
+Dim clr As Long
+
+rowa = 1
+cola = 1
+colb = 2
+
+Application.DisplayAlerts = False
+cola = Application.InputBox _
+    (prompt:="Enter the First column.", _
+        Title:="HIGHLIGHT DIFFERENCES", Type:=1)
+colb = Application.InputBox _
+    (prompt:="Enter the Second column.", _
+        Title:="HIGHLIGHT DIFFERENCES", Type:=1)
+rowa = Application.InputBox _
+    (prompt:="Enter the starting Row.", _
+        Title:="HIGHLIGHT DIFFERENCES", Type:=1)
+Application.DisplayAlerts = True
+
+Cells(rowa, cola).Select
+Selection.End(xlDown).Select
+
+finl = ActiveCell.Row
+finl = finl + 1
+
+Do
+If Cells(rowa, cola) <> Cells(rowa, colb) Then
+    ActiveSheet.Cells(rowa, colb).Select
+        With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    rowa = rowa + 1
+ElseIf Cells(rowa, cola) = Cells(rowa, colb) Then
+    rowa = rowa + 1
+End If
+Loop While Not rowa = finl
+
+End Sub

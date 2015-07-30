@@ -1,0 +1,4 @@
+Public Sub ColorCheck()
+'This macro displays the color code of the currently selected Cell
+MsgBox ActiveCell.Interior.ColorIndex
+End Sub

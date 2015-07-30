@@ -1,0 +1,268 @@
+Sub Sort()
+'
+' Sort Macro
+'
+Dim oneRange As Range
+Dim aCell As Range
+Dim Jannum As Long
+Dim divnum As Integer
+Dim lastrow As Long
+Dim colnum As Integer
+Dim divstartrow As Long
+Dim divendrow As Long
+Jannum = 0
+divnum = 0
+lastrow = 0
+colnum = 0
+divstartrow = 0
+divendrow = 0
+'
+'Optimize Macro Speed
+  Application.ScreenUpdating = False
+  Application.EnableEvents = False
+  Application.Calculation = xlCalculationManual
+
+'Ask the Jan Number and Div Number
+Application.DisplayAlerts = False
+divnum = Application.InputBox _
+    (prompt:="Enter the one digit Division number", _
+        Title:="Contractor Retention Stats", Type:=1)
+Jannum = Application.InputBox _
+    (prompt:="Enter the six digit Contractor number", _
+        Title:="Contractor Retention Stats", Type:=1)
+'
+'Adjust Divnum to coorespond to Worksheet number
+If divnum = 5 Then
+    divnum = 4
+ElseIf divnum = 4 Then
+    divnum = 3
+ElseIf divnum <> 1 And divnum <> 2 And divnum <> 4 And divnum <> 5 Then
+    Exit Sub
+End If
+'
+'Find the first row of the contractor number
+Worksheets(divnum).Activate
+colnum = 0
+'Search First Column
+Range("A3").Select
+Selection.End(xlDown).Select
+lastrow = ActiveCell.Row
+For i = 3 To lastrow
+    If Cells(i, 11).Value = Jannum And colnum = 0 Then
+        colnum = 1
+        divstartrow = i
+    End If
+Next i
+'
+'Search Second Column
+If colnum = 0 Then
+    Range("N3").Select
+    Selection.End(xlDown).Select
+    lastrow = ActiveCell.Row
+    For i = 3 To lastrow
+        If Cells(i, 24).Value = Jannum And colnum = 0 Then
+            colnum = 2
+            divstartrow = i
+        End If
+    Next i
+End If
+'
+'find the ending row of the contractor number section
+Cells(divstartrow, 11).Select
+Selection.End(xlDown).Select
+lastrow = ActiveCell.Row
+For i = divstartrow To lastrow
+    If Cells(i, (colnum - 1) * 13 + 11).Value = Jannum And Cells(i + 1, (colnum - 1) * 13 + 11).Value <> Jannum Then
+        divendrow = i
+        Exit For
+    End If
+Next i
+'
+'Copy range to new Tab for analysis
+Worksheets(5).Activate
+Cells.Delete
+Worksheets(divnum).Activate
+Range(Cells(divstartrow, 13 * (colnum - 1) + 1), Cells(divendrow, 13 * (colnum - 1) + 12)).Select
+Selection.Copy
+Worksheets(5).Activate
+ActiveSheet.Range("N1").Select
+Selection.PasteSpecial
+'
+'===============================Analysis=================================
+'
+Range("A1").Value = "Contractor #"
+Range("A2").Value = Jannum
+Range("B1").Value = "Unique Accts"
+Range("C1").Value = "Cancelled"
+Range("D1").Value = "% Cancelled"
+Range("E1").Value = "Ave Cancelled Length"
+Range("F1").Value = "Ave Length"
+Range("G1").Value = "Contractor Length"
+'
+'Find length of list
+If Cells(2, 14).Value <> "" Then
+    Cells(1, 14).Select
+    Selection.End(xlDown).Select
+    lastrow = ActiveCell.Row
+    '
+    'Sort by Customer number
+    Set oneRange = Range(Cells(1, 14), Cells(lastrow, 25))
+    Set aCell = Range("P1")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    '
+    'Number of Unique Accounts (variable: Divnum)
+    divnum = 1
+    For i = 1 To lastrow
+        If Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+            divnum = divnum + 1
+        End If
+    Next i
+'
+    Range("B2").Value = divnum
+Else
+    divnum = 1
+    Range("B2").Value = divnum
+End If
+'
+'Average Length of all accounts (Variable: Jannum,colnum)
+Jannum = 1
+colnum = 0
+For i = 1 To lastrow
+    If Cells(i + 1, 16).Value = "" And Jannum = 1 And colnum = 0 Then
+        colnum = Jannum
+        Exit For
+    ElseIf Cells(i, 16).Value = Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+        Jannum = Jannum + 1
+    ElseIf Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+        colnum = colnum + Jannum
+        Jannum = 1
+    ElseIf Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value = "" Then
+        Exit For
+    End If
+Next i
+Range("F2").Value = (colnum / divnum)
+'
+'Sort by Time
+Set oneRange = Range(Cells(1, 14), Cells(lastrow, 25))
+Set aCell = Range("n1")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'
+'Contractor Length
+Range("G2").Value = DateDiff("m", (Cells(1, 14)), (Worksheets(1).Cells(1, 1).Value))
+Range("G2").Value = Range("G2").Value + 1
+'
+'Number of Cancelled Accounts (variables: divstartrow, Divendrow)
+'Find First and last row of current month
+divstartrow = Worksheets(1).Cells(1, 1).Value
+For i = 2 To lastrow
+    If Cells(i, 14).Value = divstartrow And Cells(i - 1, 14).Value <> divstartrow And Cells(i, 14).Value <> "" Then
+        divendrow = i
+        Exit For
+    ElseIf Cells(i, 14).Value <> divstartrow And Cells(i - 1, 14).Value = divstartrow And Cells(i, 14).Value = "" Then
+        divendrow = lastrow
+        Exit For
+    End If
+Next i
+'
+'Move Current Accounts to new column
+Range(Cells(divendrow, 14), Cells(lastrow, 25)).Select
+Selection.Copy
+Range("AA1").Select
+Selection.PasteSpecial
+Range(Cells(divendrow, 14), Cells(lastrow, 25)).ClearContents
+'
+'Count Current
+If Cells(2, 27).Value <> "" Then
+    Range("AC1").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    divendrow = Selection.rows.Count
+Else
+    divendrow = 1
+End If
+'
+'Calc Cancelled and Percentage
+Range("C2").Value = (Cells(2, 2).Value) - divendrow
+Range("D2").Value = (Cells(2, 3).Value) / (Cells(2, 2).Value)
+Range("D2").Select
+Selection.Style = "Percent"
+'
+'Resort List by Customer Number
+Cells(1, 27).Select
+If Cells(2, 27).Value <> "" Then
+    Selection.End(xlDown).Select
+    divendrow = ActiveCell.Row
+Else
+    divendrow = 1
+End If
+'
+Set oneRange = Range(Cells(1, 27), Cells(divendrow, 38))
+Set aCell = Range("AC1")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'
+If Cells(1, 14).Value <> "" And Cells(2, 14).Value <> "" Then
+    Cells(1, 14).Select
+    Selection.End(xlDown).Select
+    lastrow = ActiveCell.Row
+    Set oneRange = Range(Cells(1, 14), Cells(lastrow, 25))
+    Set aCell = Range("P1")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+ElseIf Cells(1, 14).Value <> "" And Cells(2, 14).Value = "" Then
+    lastrow = 1
+End If
+'
+'Count only Cancelled
+If Cells(1, 14).Value <> "" Then
+    For i = 1 To lastrow
+        For j = 1 To divendrow
+            If Cells(i, 16).Value = Cells(j, 29).Value Then
+                Range(Cells(i, 14), Cells(i, 25)).ClearContents
+            End If
+        Next j
+    Next i
+'Resort
+    Set oneRange = Range(Cells(1, 14), Cells(lastrow, 25))
+    Set aCell = Range("P1")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'
+divnum = 0
+For i = 1 To lastrow
+    If Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+    divnum = divnum + 1
+    End If
+Next i
+Cells(2, 3).Value = divnum
+
+'
+Cells(1, 14).Select
+Selection.End(xlDown).Select
+lastrow = ActiveCell.Row
+Jannum = 1
+colnum = 0
+For i = 1 To lastrow
+    If Cells(i, 16).Value = Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+        Jannum = Jannum + 1
+    ElseIf Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value <> "" Then
+        colnum = colnum + Jannum
+        Jannum = 1
+    ElseIf Cells(i, 16).Value <> Cells(i + 1, 16).Value And Cells(i + 1, 16).Value = "" Then
+        Exit For
+    ElseIf Cells(i, 16).Value = Cells(i + 1, 16).Value And Cells(i + 1, 16).Value = "" Then
+        Exit For
+    End If
+Next i
+Range("E2").Value = (colnum / divnum)
+Else
+Cells(2, 4).Value = 0
+Cells(2, 5).Value = 0
+End If
+'
+Cells.Select
+Cells.EntireColumn.AutoFit
+
+
+Application.ScreenUpdating = True
+  Application.EnableEvents = True
+  Application.Calculation = xlCalculationAutomatic
+'
+'
+End Sub

@@ -1,0 +1,90 @@
+Public Sub Verify2Columns()
+
+'This macro Verifies the information in 2 columns with a space in the middle to move the second column to
+Dim cola As Long
+Dim colb As Long
+Dim rowa As Integer
+Dim rowb As Integer
+Dim rowas As Integer
+Dim rowbs As Integer
+Dim finlra As Integer
+Dim finlrb As Integer
+Dim finlca As Integer
+Dim finlcb As Integer
+'
+'Warning Message
+If MsgBox("This macro will check a specific column between two sets of data (multiple columns).  The information to check for must be in the first column.  The matching information will be moved to a new set of columns created after the first set.  Undo cannot remove these changes.  The file must be closed without saving and an earlier version restored.  Do you want to continue?", vbYesNo) = vbNo Then Exit Sub
+'
+'Input Prompts for information location
+Application.DisplayAlerts = False
+cola = Application.InputBox _
+    (prompt:="Enter the First column of the first set of data.", _
+        Title:="VERIFYING INFORMATION IN 2 COLUMNS", Type:=1)
+rowas = Application.InputBox _
+    (prompt:="Enter the starting Row of the first set of data.", _
+        Title:="VERIFYING INFORMATION IN 2 COLUMNS", Type:=1)
+colb = Application.InputBox _
+    (prompt:="Enter the first column of the Second set of data.", _
+        Title:="VERIFYING INFORMATION IN 2 COLUMNS", Type:=1)
+rowbs = Application.InputBox _
+    (prompt:="Enter the starting Row of the Second set of data.", _
+        Title:="VERIFYING INFORMATION IN 2 COLUMNS", Type:=1)
+Application.DisplayAlerts = True
+'
+'
+'finds how big frist set is
+Cells(rowas, cola).Select
+Selection.End(xlDown).Select
+finlra = ActiveCell.Row
+finlra = finlra + 1
+'
+'find how big second set is
+Cells(rowbs, colb).Select
+Selection.End(xlDown).Select
+Selection.End(xlToRight).Select
+'
+finlrb = ActiveCell.Row
+finlcb = ActiveCell.Column
+finlcb = finlcb + 1
+finlca = colb
+'
+For i = 1 To finlcb - colb
+    Cells(1, colb + i - 1).EntireColumn.Insert
+    
+    Next i
+'
+'correct colb variable for new columns
+colb = finlcb
+'make shifting variables start at initial values
+rowa = rowas
+rowb = rowbs
+finlcb = finlcb + finlca - 1
+'Cells(1, 1).Value = finlra
+'Cells(1, 2).Value = finlrb
+'Cells(1, 3).Value = finlca
+'Cells(1, 4).Value = finlcb
+'
+Do
+If Cells(rowa, cola) <> Cells(rowb, colb) And rowb = finlrb Then
+    rowa = rowa + 1
+    rowb = rowbs
+ElseIf Cells(rowa, cola) <> Cells(rowb, colb) Then
+    rowb = rowb + 1
+ElseIf Cells(rowa, cola) = Cells(rowb, colb) Then
+For i = 1 To finlcb - colb
+    ActiveSheet.Cells(rowb, colb + i - 1).Select
+    Selection.Cut
+    ActiveSheet.Cells(rowa, finlca + i - 1).Select
+    ActiveSheet.Paste
+    Application.CutCopyMode = False
+    Next i
+    rowb = rowbs
+    rowa = rowa + 1
+ElseIf rowb = finlrb Then
+    rowa = rowa + 1
+    rowb = rowbs
+End If
+'Final row of First set of numbers
+Loop While Not rowa = finlra
+End Sub
+

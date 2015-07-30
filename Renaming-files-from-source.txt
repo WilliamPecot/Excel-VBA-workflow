@@ -1,0 +1,28 @@
+Sub RenameFiles()
+'
+Dim oldName As String
+Dim myfile As String
+Dim newName As String
+Dim myPath As String
+Dim x As Integer
+Dim boFlag
+
+boFlag = True
+myPath = "C:\Users\USBM-SD\Desktop\Proposals"
+x = 1
+Do
+    
+    oldName = Sheets(1).Cells(x, 1)
+    newName = Sheets(1).Cells(x, 2) & ".pdf"
+        If oldName = "" Then
+            boFlag = False
+            Exit Do
+        End If
+        myfile = Dir(myPath & "\" & oldName)
+        Do Until myfile = ""
+            Name myPath & "\" & oldName As myPath & "\" & newName
+            myfile = Dir
+        Loop
+    x = x + 1
+Loop
+End Sub

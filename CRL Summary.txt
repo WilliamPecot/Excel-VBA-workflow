@@ -1,0 +1,469 @@
+Sub CRLs()
+'
+' CRLs Macro
+'
+Dim lastrow As Integer
+Dim alllastrow As Integer
+Dim sumrep As Currency
+Dim wk1 As Integer
+Dim wk2 As Integer
+Dim wk3 As Integer
+Dim wk4 As Integer
+Dim wk5 As Integer
+Dim wk6 As Integer
+'Optimize Macro Speed
+  Application.ScreenUpdating = False
+  Application.EnableEvents = False
+  Application.Calculation = xlCalculationManual
+'
+Sheets.Add After:=Worksheets(4)
+ActiveSheet.Name = "Rep Ranking Summary"
+alllastrow = 1
+
+Sheets.Add After:=Worksheets(5)
+ActiveSheet.Name = "OC copy"
+Sheets.Add After:=Worksheets(6)
+ActiveSheet.Name = "SD copy"
+Sheets.Add After:=Worksheets(7)
+ActiveSheet.Name = "IE copy"
+Sheets.Add After:=Worksheets(8)
+ActiveSheet.Name = "AZ copy"
+
+For k = 1 To 4
+Worksheets(k).Activate
+Cells.Select
+Selection.Copy
+Worksheets(k + 5).Activate
+Cells.Select
+Selection.PasteSpecial
+Next k
+
+For k = 6 To 9
+Worksheets(k).Activate
+    For i = 3 To 200
+        If Cells(i, 1) = "RS!!" Or Cells(i, 1) = "RL" Or Cells(i, 1) = " " Then
+        Range(Cells(i, 1), Cells(i, 30)).ClearContents
+        End If
+        Cells(i, 15).Value = k
+    Next i
+
+
+    
+    Range("A2:O200").Select
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Add Key:=Range("A2"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets(k).Sort
+        .SetRange Range("A3:O200")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    If Cells(3, 1) <> "" Then
+        Cells(2, 1).Select
+        Selection.End(xlDown).Select
+        lastrow = ActiveCell.Row
+        Cells(3, 1).Select
+        Range(Cells(3, 1), Cells(lastrow, 15)).Select
+
+        Selection.Copy
+        Worksheets(5).Activate
+        ActiveSheet.Cells(alllastrow + 1, 1).Select
+        Selection.PasteSpecial
+        Cells(2, 1).Select
+        Selection.End(xlDown).Select
+        alllastrow = ActiveCell.Row
+    End If
+
+
+Next k
+Worksheets(5).Activate
+Cells.Select
+    Selection.borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.borders(xlDiagonalUp).LineStyle = xlNone
+    Selection.borders(xlEdgeLeft).LineStyle = xlNone
+    Selection.borders(xlEdgeTop).LineStyle = xlNone
+    Selection.borders(xlEdgeBottom).LineStyle = xlNone
+    Selection.borders(xlEdgeRight).LineStyle = xlNone
+    Selection.borders(xlInsideVertical).LineStyle = xlNone
+    Selection.borders(xlInsideHorizontal).LineStyle = xlNone
+    Range("A1:O200").Select
+    
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Add Key:=Range("B1"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets(5).Sort
+        .SetRange Range("A1:O200")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    Range("A1:O200").Select
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Add Key:=Range("o1"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets(5).Sort
+        .SetRange Range("A1:O200")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+For i = 1 To alllastrow
+    Cells(i, 12).Value = (Cells(i, 12).Value + Cells(i, 14).Value)
+Next i
+Columns("N").Delete
+'Fix this for one contract
+For i = 2 To alllastrow + 12
+    If Cells(i - 1, 14).Value <> Cells((i), 14).Value And Cells(i - 1, 14).Value <> "" And Cells(i, 14).Value <> "" Then
+        Cells(i, 14).EntireRow.Insert Shift:=xlDown
+        Cells(i, 14).EntireRow.Insert Shift:=xlDown
+        Cells(i, 14).EntireRow.Insert Shift:=xlDown
+        alllastrow = alllastrow + 3
+    End If
+Next i
+For i = 2 To alllastrow
+    If Cells(i - 1, 2).Value <> Cells((i), 2).Value And Cells(i - 1, 2).Value <> "" And Cells(i, 2).Value <> "" Then
+        Cells(i, 2).EntireRow.Insert Shift:=xlDown
+        Cells(i, 2).EntireRow.Insert Shift:=xlDown
+        alllastrow = alllastrow + 2
+    End If
+Next i
+For i = 2 To alllastrow
+    If Cells(i, 12).Value <> "" And Cells(i + 1, 2).Value = "" Then
+        Cells(i, 12).Select
+        If Cells(i - 1, 12).Value <> "" Then
+            Range(Selection, Selection.End(xlUp)).Select
+            Cells(i + 1, 12).Value = Application.WorksheetFunction.Sum(Selection)
+            Cells(i, 13).Select
+            Range(Selection, Selection.End(xlUp)).Select
+            Cells(i + 1, 13).Value = Application.WorksheetFunction.Sum(Selection)
+        Else
+            Cells(i + 1, 12).Value = Cells(i, 12).Value
+            Cells(i + 1, 13).Value = Cells(i, 13).Value
+        End If
+    Cells(i + 1, 11).Value = Cells(i, 2).Value
+    Range(Cells(i + 1, 11), Cells(i + 1, 13)).Select
+                    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+        i = i + 1
+    End If
+Next i
+
+For i = 1 To 10
+Columns("A").Delete
+Next i
+
+For i = 1 To alllastrow
+    If Cells(i, 1).Interior.ColorIndex = -4142 Then
+           Range(Cells(i, 1), Cells(i, 30)).ClearContents
+    End If
+Next i
+      Range("A1:O200").Select
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(5).Sort.SortFields.Add Key:=Range("A1"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets(5).Sort
+        .SetRange Range("A1:O200")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+Cells(1, 1).Select
+Selection.End(xlDown).Select
+alllastrow = ActiveCell.Row
+For i = 1 To alllastrow
+    Cells(i, 2).Style = "currency"
+    Cells(i, 3).Style = "currency"
+    Cells(i, 4).Value = (Cells(i, 2).Value + Cells(i, 3).Value)
+Next i
+    
+Range("A1:D20").Select
+ActiveWorkbook.Worksheets(5).Sort.SortFields.Clear
+ActiveWorkbook.Worksheets(5).Sort.SortFields.Add Key:=Range("D1"), _
+SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:= _
+xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets(5).Sort
+        .SetRange Range("A1:O200")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+Application.DisplayAlerts = False
+For i = 1 To 4
+Worksheets(6).Activate
+Cells.Select
+Selection.ClearContents
+Worksheets(6).Delete
+Next i
+Application.DisplayAlerts = True
+
+Worksheets(5).Activate
+Cells.EntireColumn.AutoFit
+'===========================================Weekly Stats===============================
+Sheets.Add After:=Worksheets(5)
+ActiveSheet.Name = "Weekly Stats"
+alllastrow = 1
+
+Sheets.Add After:=Worksheets(6)
+ActiveSheet.Name = "OC copy"
+Sheets.Add After:=Worksheets(7)
+ActiveSheet.Name = "SD copy"
+Sheets.Add After:=Worksheets(8)
+ActiveSheet.Name = "IE copy"
+Sheets.Add After:=Worksheets(9)
+ActiveSheet.Name = "AZ copy"
+'worksheet titles
+Worksheets(6).Activate
+Cells(2, 1).Value = "Average"
+Cells(3, 1).Value = "Cash In"
+Cells(4, 1).Value = "Guarantees"
+Cells(5, 1).Value = "Notes Rec"
+Cells(1, 7).Value = "SA"
+Cells(1, 13).Value = "SD"
+Cells(1, 19).Value = "IE"
+Cells(1, 25).Value = "AZ"
+For j = 1 To 4
+For i = 1 To 5
+Cells(1, (j - 1) * 6 + i + 1).Value = "Wk" & i
+Next i
+Next j
+'
+For k = 1 To 4
+Worksheets(k).Activate
+Cells.Select
+Selection.Copy
+Worksheets(k + 6).Activate
+Cells.Select
+Selection.PasteSpecial
+Next k
+'
+For k = 1 To 4
+Worksheets(k + 6).Activate
+'wk1
+For i = 3 To 100
+    If Cells(i - 1, 1).Interior.ColorIndex <> -4142 And Cells(i, 1).Interior.ColorIndex = -4142 Then
+           wk1 = i
+           Exit For
+    End If
+Next i
+'wk2
+For i = wk1 + 1 To 100
+    If Cells(i - 1, 4).Value = "Monthly" And Cells(i, 4).Value <> "Monthly" Or Cells(i - 1, 5).Value = "Monthly" And Cells(i, 5).Value <> "Monthly" Then
+           wk2 = i
+           Exit For
+    End If
+Next i
+'wk3
+For i = wk2 + 1 To 100
+    If Cells(i - 1, 4).Value = "Monthly" And Cells(i, 4).Value <> "Monthly" Or Cells(i - 1, 5).Value = "Monthly" And Cells(i, 5).Value <> "Monthly" Then
+           wk3 = i
+           Exit For
+    End If
+Next i
+'wk4
+For i = wk3 + 1 To 100
+    If Cells(i - 1, 4).Value = "Monthly" And Cells(i, 4).Value <> "Monthly" Or Cells(i - 1, 5).Value = "Monthly" And Cells(i, 5).Value <> "Monthly" Then
+           wk4 = i
+           Exit For
+    End If
+Next i
+'wk5
+For i = wk4 + 1 To 100
+    If Cells(i - 1, 4).Value = "Monthly" And Cells(i, 4).Value <> "Monthly" Or Cells(i - 1, 5).Value = "Monthly" And Cells(i, 5).Value <> "Monthly" Then
+           wk5 = i
+           Exit For
+    End If
+Next i
+'wk6
+For i = wk5 + 1 To 100
+    If Cells(i - 1, 4).Value = "Monthly" And Cells(i, 4).Value <> "Monthly" Or Cells(i - 1, 5).Value = "Monthly" And Cells(i, 5).Value <> "Monthly" Then
+           wk6 = i
+           Exit For
+    End If
+Next i
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk1, 6), Cells(wk2 - 3, 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(2, (k - 1) * 6 + 2).Value = (sumrep) / (wk2 - wk1 - 2)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk2, 6), Cells(wk3 - 3, 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(2, (k - 1) * 6 + 3).Value = (sumrep) / (wk3 - wk2 - 2)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk3, 6), Cells(wk4 - 3, 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(2, (k - 1) * 6 + 4).Value = (sumrep) / (wk4 - wk3 - 2)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk4, 6), Cells(wk5 - 3, 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(2, (k - 1) * 6 + 5).Value = (sumrep) / (wk5 - wk4 - 2)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk5, 6), Cells(wk6 - 3, 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(2, (k - 1) * 6 + 6).Value = (sumrep) / (wk6 - wk5 - 2)
+'
+'CASH IN
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk1, 12), Cells(wk2 - 3, 12)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(3, (k - 1) * 6 + 2).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk2, 12), Cells(wk3 - 3, 12)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(3, (k - 1) * 6 + 3).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk3, 12), Cells(wk4 - 3, 12)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(3, (k - 1) * 6 + 4).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk4, 12), Cells(wk5 - 3, 12)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(3, (k - 1) * 6 + 5).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk5, 12), Cells(wk6 - 3, 12)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(3, (k - 1) * 6 + 6).Value = (sumrep)
+'
+'GAURANTEE
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk1, 13), Cells(wk2 - 3, 13)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(4, (k - 1) * 6 + 2).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk2, 13), Cells(wk3 - 3, 13)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(4, (k - 1) * 6 + 3).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk3, 13), Cells(wk4 - 3, 13)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(4, (k - 1) * 6 + 4).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk4, 13), Cells(wk5 - 3, 13)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(4, (k - 1) * 6 + 5).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk5, 13), Cells(wk6 - 3, 13)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(4, (k - 1) * 6 + 6).Value = (sumrep)
+'
+'NOTE REC
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk1, 14), Cells(wk2 - 3, 14)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(5, (k - 1) * 6 + 2).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk2, 14), Cells(wk3 - 3, 14)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(5, (k - 1) * 6 + 3).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk3, 14), Cells(wk4 - 3, 14)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(5, (k - 1) * 6 + 4).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk4, 14), Cells(wk5 - 3, 14)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(5, (k - 1) * 6 + 5).Value = (sumrep)
+'
+sumrep = 0
+Worksheets(k + 6).Range(Cells(wk5, 14), Cells(wk6 - 3, 14)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Worksheets(6).Cells(5, (k - 1) * 6 + 6).Value = (sumrep)
+'
+Worksheets(6).Activate
+Range(Cells(3, (k - 1) * 6 + 2), Cells(3, (k - 1) * 6 + 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Cells(3, (k - 1) * 6 + 7).Value = sumrep
+Range(Cells(4, (k - 1) * 6 + 2), Cells(4, (k - 1) * 6 + 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Cells(4, (k - 1) * 6 + 7).Value = sumrep
+Range(Cells(5, (k - 1) * 6 + 2), Cells(5, (k - 1) * 6 + 6)).Select
+sumrep = Application.WorksheetFunction.Sum(Selection)
+Cells(5, (k - 1) * 6 + 7).Value = sumrep
+Cells(6, (k - 1) * 6 + 7).Value = Cells(3, (k - 1) * 6 + 7).Value + Cells(5, (k - 1) * 6 + 7).Value
+Next k
+
+Range("B2:Y6").Style = "currency"
+For i = 0 To 3
+Range(Cells(1, (i) * 6 + 2), Cells(6, (i) * 6 + 7)).Select
+    Selection.borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    Selection.borders(xlInsideVertical).LineStyle = xlNone
+    Selection.borders(xlInsideHorizontal).LineStyle = xlNone
+Next i
+
+Application.DisplayAlerts = False
+For i = 1 To 4
+Worksheets(7).Activate
+Cells.Select
+Selection.ClearContents
+Worksheets(7).Delete
+Next i
+Application.DisplayAlerts = True
+
+
+Application.ScreenUpdating = True
+Application.EnableEvents = True
+Application.Calculation = xlCalculationAutomatic
+End Sub

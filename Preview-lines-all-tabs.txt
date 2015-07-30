@@ -1,0 +1,15 @@
+Sub Previewlines()
+'
+' PreviewLines Macro
+'
+Application.ScreenUpdating = False
+Dim aaa As Integer
+aaa = ActiveWorkbook.Worksheets.Count
+For i = 1 To aaa
+    Worksheets(i).Activate
+    ActiveWindow.View = xlPageBreakPreview
+    ActiveWindow.View = xlNormalView
+Next i
+Application.ScreenUpdating = True
+'
+End Sub

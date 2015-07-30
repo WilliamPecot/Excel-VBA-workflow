@@ -1,0 +1,27 @@
+Sub MergeCells()
+'
+' MergeCells Macro
+'
+'Sub MergeOneCell()
+'Updateby20140128
+Dim Rng As Range
+Dim WorkRng As Range
+Dim Sigh As String
+On Error Resume Next
+xTitleId = "KutoolsforExcel"
+Set WorkRng = Application.Selection
+Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8)
+Sigh = Application.InputBox("Symbol merge", xTitleId, ",", Type:=2)
+xOut = ""
+Application.DisplayAlerts = False
+For Each Rng In WorkRng
+xOut = xOut & Rng.Value & Sigh
+Next
+With WorkRng
+.Merge
+.Value = VBA.Left(xOut, VBA.Len(xOut) - 1)
+End With
+Application.DisplayAlerts = True
+'End Sub
+'
+End Sub

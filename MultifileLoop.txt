@@ -1,0 +1,149 @@
+Sub RemoveColumnD()
+'PURPOSE: To loop through all Excel files in a user specified folder and perform a set task on them
+'SOURCE: www.TheSpreadsheetGuru.com
+
+Dim wb As Workbook
+Dim myPath As String
+Dim myfile As String
+Dim myExtension As String
+Dim FldrPicker As FileDialog
+Dim Jannum As Integer
+Dim divnum As Integer
+Dim y As Workbook
+Dim amm As Integer
+amm = 0
+
+'Optimize Macro Speed
+  Application.ScreenUpdating = False
+  Application.EnableEvents = False
+  Application.Calculation = xlCalculationManual
+
+'Ask the Jan Number and Div Number
+'Application.DisplayAlerts = False
+'Divnum = Application.InputBox _
+'    (prompt:="Enter the one digit Division number", _
+'        Title:="Contractor Retention Stats", Type:=1)
+'Jannum = Application.InputBox _
+'    (prompt:="Enter the six digit Contractor number", _
+'        Title:="Contractor Retention Stats", Type:=1)
+'Application.DisplayAlerts = True
+
+'Create the Contractor's Excel File
+'Application.DisplayAlerts = True
+'    ChDir "C:\Users\USBM-SD\Desktop"
+'    ActiveWorkbook.SaveAs Filename:= _
+'        "C:\Users\USBM-SD\Desktop\Alphabetical Report " & Amm & "-" & Ayy & ".xls", FileFormat:= _
+'        xlExcel8, Password:="", WriteResPassword:="", ReadOnlyRecommended:=False _
+'        , CreateBackup:=False
+        
+'Retrieve Target Folder Path From User
+  Set FldrPicker = Application.FileDialog(msoFileDialogFolderPicker)
+
+    With FldrPicker
+      .Title = "Select A Target Folder"
+      .AllowMultiSelect = False
+        If .Show <> -1 Then GoTo NextCode
+        myPath = .SelectedItems(1) & "\"
+    End With
+Set y = Workbooks.Open("C:\Users\USBM-SD\Desktop\Contractor Retention\Reports\combined.xls")
+'In Case of Cancel
+NextCode:
+  myPath = myPath
+  If myPath = "" Then GoTo ResetSettings
+
+'Target File Extension (must include wildcard "*")
+  myExtension = "*.xls"
+
+'Target Path with Ending Extention
+  myfile = Dir(myPath & myExtension)
+
+'Loop through each Excel file in folder
+  Do While myfile <> ""
+    'Set variable equal to opened workbook
+        
+      Set wb = Workbooks.Open(Filename:=myPath & myfile)
+    
+    'Action
+    '=======================================
+    
+    
+'## Open both workbooks first:
+
+
+'Now, copoy what you want from x:
+wb.Worksheets(1).Activate
+ActiveSheet.Cells(1, 1).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlToRight)).Select
+Application.CutCopyMode = False
+Selection.Copy
+'Now, paste to y worksheet:
+y.Worksheets(1).Activate
+ActiveSheet.Range("N1").Select
+Selection.End(xlDown).Select
+Selection.Offset(1, 0).Select
+Selection.PasteSpecial
+Application.CutCopyMode = False
+
+
+wb.Worksheets(2).Activate
+ActiveSheet.Cells(1, 1).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlToRight)).Select
+Application.CutCopyMode = False
+Selection.Copy
+'Now, paste to y worksheet:
+y.Worksheets(2).Activate
+ActiveSheet.Range("N1").Select
+Selection.End(xlDown).Select
+Selection.Offset(1, 0).Select
+Selection.PasteSpecial
+Application.CutCopyMode = False
+
+
+wb.Worksheets(3).Activate
+ActiveSheet.Cells(1, 1).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlToRight)).Select
+Application.CutCopyMode = False
+Selection.Copy
+'Now, paste to y worksheet:
+y.Worksheets(3).Activate
+ActiveSheet.Range("N1").Select
+Selection.End(xlDown).Select
+Selection.Offset(1, 0).Select
+Selection.PasteSpecial
+Application.CutCopyMode = False
+
+
+wb.Worksheets(4).Activate
+ActiveSheet.Cells(1, 1).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlToRight)).Select
+Application.CutCopyMode = False
+Selection.Copy
+'Now, paste to y worksheet:
+y.Worksheets(4).Activate
+ActiveSheet.Range("N1").Select
+Selection.End(xlDown).Select
+Selection.Offset(1, 0).Select
+Selection.PasteSpecial
+Application.CutCopyMode = False
+
+    '===============================================
+    'Save and Close Workbook
+      wb.Close SaveChanges:=True
+
+    'Get next file name
+      myfile = Dir
+  Loop
+      y.Close SaveChanges:=True
+'Message Box when tasks are completed
+  MsgBox "Task Complete!"
+
+ResetSettings:
+  'Reset Macro Optimization Settings
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+End Sub

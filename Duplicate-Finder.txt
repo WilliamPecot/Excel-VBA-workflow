@@ -1,0 +1,44 @@
+Public Sub RemoveDuplicates()
+'
+' RemoveDuplicates Macro
+Dim cola As Long
+Dim colb As Long
+Dim rowa As Integer
+Dim rowb As Integer
+Dim finlr As Integer
+Dim finlc As Integer
+'
+If MsgBox("This macro checks for any duplicates in the column you decide.  The duplicate to check for must be in the first column of the set of data.  If a duplicate is found it moves that cell and all adjacent cells to the right into a new series of columns to the right of all of your data.  You cannot undo this action unless you close excel without saving and reload an older version of the file.  Do you want to continue?", vbYesNo) = vbNo Then Exit Sub
+Application.DisplayAlerts = False
+cola = Application.InputBox _
+    (prompt:="Enter the First column.", _
+        Title:="SET ASIDE DUPLICATES", Type:=1)
+rowa = Application.InputBox _
+    (prompt:="Enter the starting Row.", _
+        Title:="SET ASIDE DUPLICATES", Type:=1)
+Application.DisplayAlerts = True
+'
+Cells(rowa, cola).Select
+Selection.End(xlDown).Select
+Selection.End(xlToRight).Select
+'
+finlr = ActiveCell.Row
+finlc = ActiveCell.Column
+finlr = finlr + 1
+colb = finlc + 1
+'
+Do
+If Cells(rowa + 1, cola) <> Cells(rowa, cola) Then
+    rowa = rowa + 1
+ElseIf Cells(rowa + 1, cola) = Cells(rowa, cola) Then
+    For i = 1 To colb - cola
+    ActiveSheet.Cells(rowa, cola + i - 1).Select
+    Selection.Cut
+    ActiveSheet.Cells(rowa, colb + i - 1).Select
+    ActiveSheet.Paste
+    Application.CutCopyMode = False
+    Next i
+    rowa = rowa + 1
+End If
+Loop While Not rowa = finlr
+End Sub

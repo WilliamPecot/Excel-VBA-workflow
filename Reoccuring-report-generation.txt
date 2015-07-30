@@ -1,0 +1,448 @@
+Public Sub RecurringClean1()
+'
+MsgBox "This will take a few minutes. A prompt will inform you of completion. Please wait."
+Application.ScreenUpdating = False
+'Define Variable for Final row of division
+Dim repl As Integer
+Dim FDiv As Integer
+Dim odiv As Long
+Dim lastrow As Integer
+Dim hdiv As Integer
+Dim rep2 As Integer
+Dim dat As Date
+'===================================Prep Section===============================================
+'Forloop for Division Prep
+For k = 1 To 4
+'Remove Previous Month, Move Month Over to previous column including date
+ActiveWorkbook.Sheets(k).Activate
+Range("F6:J2000").Delete
+Range("A6:E2000").Select
+Selection.Cut
+Range("F6").Select
+ActiveSheet.Paste
+'Sort new column by acct number
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Add Key:=Range("F6:F2000"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets(k).Sort
+        .SetRange Range("F6:I2000")
+        .Header = xlGuess
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+'Find final row of division
+Cells(6, 6).Select
+Selection.End(xlDown).Select
+FDiv = ActiveCell.Row
+'Delete all subtotals, counts, cancellations, transfer indications
+rows(FDiv + 1 & ":" & 2000).Delete
+Range("J6:J2000").Delete
+'Change all Green to White
+
+For i = 1 To FDiv
+If Cells(i, 6).Interior.ColorIndex = 35 Then
+    rows(i).Interior.ColorIndex = 0
+End If
+Next i
+'
+'Sort by Color, then Rep (now ordered by Rep, then Color, then Acct)
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Add Key:=Range("H6:H" & FDiv), _
+        SortOn:=xlSortOnCellColor, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets(k).Sort
+        .SetRange Range("F6:I" & FDiv)
+        .Header = xlGuess
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(k).Sort.SortFields.Add Key:=Range("H6:H" & FDiv), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets(k).Sort
+        .SetRange Range("F6:I" & FDiv)
+        .Header = xlGuess
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+Range("F6").Select
+Range(Selection, Selection.End(xlDown)).Select
+'convert cell to decimal number
+For Each xCell In Selection
+xCell.Value = CDec(xCell.Value)
+Next xCell
+'
+'Create a space bewteen each section add totals, underline appropriately
+Cells(2, 7).Value = Range("I6:I2000").Cells.SpecialCells(xlCellTypeConstants).Count
+Cells(2, 6).Value = Application.Sum(Range(Cells(6, 9), Cells(2000, 9)))
+Cells(2, 6).NumberFormat = "$0,000.00"
+Range("I6:I2000").Font.Underline = False
+For i = 6 To FDiv
+If Cells(i + 1, 9).Interior.ColorIndex <> Cells(i, 9).Interior.ColorIndex Then
+    Cells(i + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(i + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(i, 9).Font.Underline = True
+    Cells(i + 1, 9).Font.Underline = False
+    rows(i + 2).Interior.ColorIndex = 0
+    i = i + 2
+    FDiv = FDiv + 2
+ElseIf Cells(i + 1, 9).Interior.ColorIndex = Cells(i, 9).Interior.ColorIndex And Cells(i + 1, 8).Value <> Cells(i, 8).Value Then
+    Cells(i + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(i + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(i, 9).Font.Underline = True
+    Cells(i + 1, 9).Font.Underline = False
+    rows(i + 2).Interior.ColorIndex = 0
+    i = i + 2
+    FDiv = FDiv + 2
+End If
+Next i
+Cells(FDiv, 9).Font.Underline = True
+'
+For Each NumRange In Columns("I").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+'Count Accounts per Rep
+For Each NumRange In Columns("I").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count + 0, 1).Resize(1, 1).Formula = "=Count(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+Range("J6:J2000").Font.Underline = False
+Range("J6:J2000").NumberFormat = "0"
+Cells(FDiv + 3, 9).Value = Cells(2, 6).Value
+Cells(FDiv + 3, 10).Value = Cells(2, 7).Value
+Range("F2:G2").ClearContents
+'
+'For i = 6 To FDiv
+'If Cells(i, 8).Value = "" And Cells(i, 9).Value <> "" And Cells(i, 9).Interior.ColorIndex <> Cells(i - 1, 9).Interior.ColorIndex Then
+'    Range(Cells(i, 6), Cells(i, 9)).Interior.ColorIndex = Cells(i - 1, 9).Interior.ColorIndex
+'End If
+'Next i
+dat = ActiveWorkbook.Sheets(k).Cells(3, 1).Value
+ActiveWorkbook.Sheets(k).Cells(3, 6).Value = dat
+Next k
+'
+'=====================================================New Month========================================
+'
+ActiveWorkbook.Sheets("New Month Report").Activate
+Columns("D").Delete
+Columns("D").Delete
+Columns("D").Delete
+Columns("D").Delete
+Columns("D").Delete
+Columns("D").Delete
+Columns("E").Delete
+'
+'Order by Monthly Amount (zeros Last)
+Cells(5, 1).Select
+Selection.End(xlDown).Select
+FDiv = ActiveCell.Row
+Set oneRange = Range(Cells(6, 1), Cells(FDiv, 5))
+Set aCell = Range("E6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+'Delete Zeroes
+For i = 6 To FDiv
+If Cells(i, 5) = 0 Then
+    rows(i).ClearContents
+End If
+Next i
+'Sort by Account Number
+Set oneRange = Range(Cells(6, 1), Cells(FDiv, 5))
+Set aCell = Range("B6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+'Convert Acct#'s to Numbers
+Range("A6:B6").Select
+Range(Selection, Selection.End(xlDown)).Select
+For Each xCell In Selection
+xCell.Value = CDec(xCell.Value)
+Next xCell
+'Sort by then Division
+Set oneRange = Range("A6:E5000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'
+'Match Font
+Cells.Select
+Selection.Font.Name = "Calibri"
+Selection.Font.Size = 11
+'
+'Separate Divisions By one Space
+Cells(5, 1).Select
+Selection.End(xlDown).Select
+FDiv = ActiveCell.Row
+For i = 6 To FDiv
+If Cells(i + 1, 1) <> Cells(i, 1) Then
+    Cells(i + 1, 1).EntireRow.Insert Shift:=xlDown
+    i = i + 1
+End If
+Next i
+Cells(6, 1).EntireRow.Insert Shift:=xlDown
+
+For k = 1 To 4
+Sheets("New Month Report").Select
+Range("B6:E6").Select
+Selection.End(xlDown).Select
+Range(Selection, Selection.End(xlEnd)).Select
+Range(Selection, Selection.End(xlDown)).Select
+    Selection.Cut
+    Sheets(k).Select
+    Range("K6").Select
+    ActiveSheet.Paste
+'Comparing New and old Months
+'
+'Find final row of division
+FDiv = Range("K:K").Find("*", Range("K1"), SearchDirection:=xlPrevious).Row
+odiv = Range("F:F").Find("*", Range("F1"), SearchDirection:=xlPrevious).Row
+For i = 6 To FDiv
+    For j = 6 To odiv
+        If Cells(j, 6) = Cells(i, 11) Then
+            Range(Cells(i, 11), Cells(i, 14)).Select
+            Selection.Copy
+            Range(Cells(j, 1), Cells(j, 4)).PasteSpecial
+            Range(Cells(i, 11), Cells(i, 14)).ClearContents
+        End If
+    Next j
+Next i
+Set oneRange = Range(Cells(6, 11), Cells(FDiv + 1, 14))
+Set aCell = Range("K6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+If Cells(7, 11) = "" And Cells(6, 11) <> "" Then
+    Cells(6, 11).Interior.ColorIndex = 35
+    FDiv = 6
+ElseIf Cells(7, 11) <> "" And Cells(6, 11) <> "" Then
+    Cells(6, 11).Select
+    Selection.End(xlDown).Select
+    FDiv = ActiveCell.Row
+    Range(Cells(6, 11), Cells(FDiv, 14)).Interior.ColorIndex = 35
+Else
+    FDiv = 0
+End If
+'Sort New Acct List by Rep
+Set oneRange = Range(Cells(6, 11), Cells(FDiv + 1, 14))
+Set aCell = Range("m6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'Pull out all Managed accounts in wrong spot
+lastrow = Range("A:A").Find("*", Range("A1"), SearchDirection:=xlPrevious).Row
+For i = 1 To lastrow
+    Range(Cells(i, 1), Cells(i, 4)).Interior.ColorIndex = Cells(i, 6).Interior.ColorIndex
+Next i
+'
+For i = 6 To lastrow
+    If Cells(i, 3) <> Cells(i, 8) And Cells(i, 3) <> "" Then
+        Range(Cells(i, 1), Cells(i, 4)).Select
+        Selection.Copy
+        Range(Cells(i, 16), Cells(i, 19)).PasteSpecial
+        Range(Cells(i, 1), Cells(i, 4)).ClearContents
+        Range(Cells(i, 1), Cells(i, 5)).Interior.ColorIndex = 36
+    ElseIf Cells(i, 3) <> Cells(i, 8) And Cells(i, 3) = "" Then
+        Range(Cells(i, 1), Cells(i, 5)).Interior.ColorIndex = 38
+    End If
+Next i
+'Sort Moved managed accounts by acct then rep
+Set oneRange = Range(Cells(6, 16), Cells(lastrow, 19))
+Set aCell = Range("p6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Set aCell = Range("r6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'Find last row of Transfers
+If Cells(6, 16) <> "" And Cells(7, 16) <> "" Then
+    hdiv = Range("P:P").Find("*", Range("P1"), SearchDirection:=xlPrevious).Row
+ElseIf Cells(6, 16) <> "" And Cells(7, 16) = "" Then
+    hdiv = Range("P:P").Find("*", Range("P1"), SearchDirection:=xlPrevious).Row
+ElseIf Cells(6, 16) = "" And Cells(7, 16) = "" Then
+    hdiv = 0
+End If
+'Move new Accounts below prev month managed accts
+'
+If FDiv > 6 Then
+    For i = 6 To FDiv
+        If Cells(i, 13) <> Cells(i + 1, 13) And Cells(i, 13) <> "" And Cells(i - 1, 13) = "" Then
+                        rep = Cells(i, 13).Value
+            For j = 6 To 3000
+                If Cells(j, 3).Value = rep Then
+                    rep2 = j
+                End If
+            Next j
+            Range(Cells(i, 11), Cells(i, 14)).Select
+            Selection.Copy
+            Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+            Range(Cells(i, 11), Cells(i, 14)).ClearContents
+            Range(Cells(i, 11), Cells(i, 14)).Interior.ColorIndex = 0
+            Cells(rep2 + 3, 5).Select
+            Range(Selection, Selection.End(xlEnd)).ClearContents
+            Range(Selection, Selection.End(xlEnd)).Interior.ColorIndex = 0
+            Cells(rep2 + 3, 11).Select
+            Range(Selection, Selection.End(xlEnd)).Delete
+            Cells(rep2 + 4, 1).Select
+            Selection.EntireRow.Insert Shift:=xlDown
+            Selection.EntireRow.Insert Shift:=xlDown
+            Range(Cells(rep2 + 5, 1), Cells(rep2 + 5, 4)).Interior.ColorIndex = 0
+        ElseIf Cells(i, 13) <> Cells(i + 1, 13) And Cells(i, 13) <> "" Then
+            rep = Cells(i, 13).Value
+            For j = 6 To 3000
+                If Cells(j, 3).Value = rep Then
+                    rep2 = j
+                End If
+            Next j
+            Range(Cells(i, 11), Cells(i, 14)).Select
+            Range(Selection, Selection.End(xlUp)).Select
+            Selection.Copy
+            repl = Selection.rows.Count
+            Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+            Range(Cells(i - repl, 11), Cells(i, 14)).Select
+            Selection.ClearContents
+            Selection.Interior.ColorIndex = 0
+            Cells(rep2 + 3, 5).Select
+            Range(Selection, Selection.End(xlDown)).Select
+            Range(Selection, Selection.End(xlEnd)).Select
+            Selection.ClearContents
+            Selection.Interior.ColorIndex = 0
+            Range(Cells(rep2 + 3, 11), Cells(rep2 + 3 + repl, 11)).Select
+            Range(Selection, Selection.End(xlEnd)).Delete
+            Cells(rep2 + 3 + repl, 1).Select
+            Selection.EntireRow.Insert Shift:=xlDown
+            Selection.EntireRow.Insert Shift:=xlDown
+            Range(Cells(rep2 + 4 + repl, 1), Cells(rep2 + 4 + repl, 4)).Interior.ColorIndex = 0
+        End If
+    Next i
+ElseIf FDiv = 6 Then
+        rep = Cells(i, 13).Value
+            For j = 6 To lastrow
+                If Cells(j, 3).Value = rep Then
+                    rep2 = j
+                End If
+            Next j
+        Range(Cells(6, 11), Cells(6, 14)).Select
+        Selection.Copy
+        Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+        Range(Cells(rep2 + 3, 1), Cells(rep2 + 3, 4)).PasteSpecial
+        Range(Cells(6, 11), Cells(6, 14)).ClearContents
+        Range(Cells(6, 11), Cells(6, 14)).Interior.ColorIndex = 0
+        appication.CutCopyMode = False
+        Cells(rep2 + 4, 1).Select
+End If
+'Sort Moved managed accounts by acct then rep
+Set oneRange = Range(Cells(6, 16), Cells(lastrow, 19))
+Set aCell = Range("p6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Set aCell = Range("r6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'Find last row of Transfers
+If Cells(6, 16) <> "" And Cells(7, 16) <> "" Then
+    hdiv = Range("P:P").Find("*", Range("P1"), SearchDirection:=xlPrevious).Row
+ElseIf Cells(6, 16) <> "" And Cells(7, 16) = "" Then
+    hdiv = Range("P:P").Find("*", Range("P1"), SearchDirection:=xlPrevious).Row
+ElseIf Cells(6, 16) = "" And Cells(7, 16) = "" Then
+    hdiv = 0
+End If
+
+Columns("k:o").Delete
+'If hdiv > 6 Then
+'    For i = 6 To hdiv
+'        If Cells(i, 13) <> Cells(i + 1, 13) And Cells(i, 13) <> "" And Cells(i - 1, 13) = "" Then
+'                        rep = Cells(i, 13).Value
+'            For j = 6 To 3000
+'                If Cells(j, 3).Value = rep Then
+'                    rep2 = j
+'                End If
+'            Next j
+'            Range(Cells(i, 11), Cells(i, 14)).Select
+'            Selection.Copy
+'            Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+'            Range(Cells(i, 11), Cells(i, 14)).ClearContents
+'            Range(Cells(i, 11), Cells(i, 14)).Interior.ColorIndex = 0
+'            Cells(rep2 + 3, 5).Select
+'            Range(Selection, Selection.End(xlEnd)).ClearContents
+'            Range(Selection, Selection.End(xlEnd)).Interior.ColorIndex = 0
+'            Cells(rep2 + 3, 11).Select
+'            Range(Selection, Selection.End(xlEnd)).Delete
+'            Cells(rep2 + 4, 1).Select
+'            Selection.EntireRow.Insert Shift:=xlDown
+'            Selection.EntireRow.Insert Shift:=xlDown
+'            Range(Cells(rep2 + 5, 1), Cells(rep2 + 5, 4)).Interior.ColorIndex = 0
+'        ElseIf Cells(i, 13) <> Cells(i + 1, 13) And Cells(i, 13) <> "" Then
+'            rep = Cells(i, 13).Value
+'            For j = 6 To 3000
+'                If Cells(j, 3).Value = rep Then
+'                    rep2 = j
+'                End If
+'            Next j
+'            Range(Cells(i, 11), Cells(i, 14)).Select
+'            Range(Selection, Selection.End(xlUp)).Select
+'            Selection.Copy
+'            repl = Selection.rows.Count
+'            Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+'            Range(Cells(i - repl, 11), Cells(i, 14)).Select
+'            Selection.ClearContents
+'            Selection.Interior.ColorIndex = 0
+'            Cells(rep2 + 3, 5).Select
+'            Range(Selection, Selection.End(xlDown)).Select
+'            Range(Selection, Selection.End(xlEnd)).Select
+'            Selection.ClearContents
+'            Selection.Interior.ColorIndex = 0
+'            Cells(rep2 + 3, 11).Select
+'            Range(Cells(rep2 + 3, 11), Cells(rep2 + 3 + repl, 11)).Select
+'            Range(Selection, Selection.End(xlEnd)).Delete
+'            Cells(rep2 + 3 + repl, 1).Select
+'            Selection.EntireRow.Insert Shift:=xlDown
+'            Selection.EntireRow.Insert Shift:=xlDown
+'            Range(Cells(rep2 + 4 + repl, 1), Cells(rep2 + 4 + repl, 4)).Interior.ColorIndex = 0
+'        End If
+'    Next i
+'ElseIf hdiv = 6 Then
+'        rep = Cells(i, 13).Value
+'            For j = 6 To lastrow
+'                If Cells(j, 3).Value = rep Then
+'                    rep2 = j
+'                End If
+'            Next j
+'        Range(Cells(6, 11), Cells(6, 14)).Select
+'        Selection.Copy
+'        Cells(rep2 + 3, 1).EntireRow.Insert Shift:=xlDown
+'        Range(Cells(rep2 + 3, 1), Cells(rep2 + 3, 4)).PasteSpecial
+'        Range(Cells(6, 11), Cells(6, 14)).ClearContents
+'        Range(Cells(6, 11), Cells(6, 14)).Interior.ColorIndex = 0
+'        appication.CutCopyMode = False
+'        Cells(rep2 + 4, 1).Select
+'End If
+'
+For i = 1 To 3000
+    If Cells(i, 8) <> "" And Cells(i + 1, 8) = "" And Cells(i + 1, 9) <> "" Then
+        Cells(i + 1, 4) = Cells(i + 1, 9)
+        Cells(i + 1, 5) = Cells(i + 1, 10)
+        End If
+Next i
+'
+For i = 6 To 3000
+    If Cells(i, 8) <> "" And Cells(i + 1, 8) = "" And Cells(i + 1, 9) <> "" Then
+        Cells(i + 1, 9).Select
+        Selection.Copy
+        Cells(i + 1, 4).PasteSpecial
+        Cells(i + 1, 10).Select
+        Selection.Copy
+        Cells(i + 1, 5).PasteSpecial
+        Cells(i, 4).Font.Underline = True
+        End If
+Next i
+'
+'For i = 6 To 3000
+'    If Cells(i, 4) <> "" And Cells(i - 1, 4) = "" And Cells(i, 6) = "" Then
+'        odiv = i
+'    End If
+'    If Cells(i, 4) = "" And Cells(i - 1, 4) <> "" And Cells(i - 1, 6) = "" Then
+'        Cells(i, 4) = Application.Sum(Range(Cells(rep2, 4), Cells(i - 1, 4)))
+'        Cells(i, 5) = Range(Cells(rep2, 4), Cells(i - 1, 4)).Cells.SpecialCells(xlCellTypeConstants).Count
+'    End If
+'Next i
+Next k
+'
+Application.ScreenUpdating = True
+MsgBox "Complete!"
+End Sub

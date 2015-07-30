@@ -1,0 +1,960 @@
+Public Sub MonthlyReport()
+'
+' MonthlyReport Macro
+MsgBox "This will take a few minutes. A prompt will inform you of completion. Please wait."
+Application.ScreenUpdating = False
+  Application.EnableEvents = False
+  Application.Calculation = xlCalculationManual
+'Defines Variables
+Dim ABC As Integer
+Dim oneRange As Range
+Dim aCell As Range
+Dim ws1 As Worksheet
+Dim Cntrct As Integer
+Dim ASum As Integer
+Dim cnt As Integer
+Dim Sm As String
+Dim amm As Integer
+Dim Ayy As Integer
+
+'
+'Initial Document Cleaning
+Columns("D").Delete
+ActiveSheet.Cells(5, 10).Select
+Selection.Value = "Contractor #"
+ABC = 6
+'
+'Order by Monthly Amount (zeros Last)
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("K6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+
+'
+'Deletes all Zero Monthly Amounts
+Do
+If Cells(ABC, 11) <> 0 Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 11) = 0
+With Sheets(1)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+'
+'Order by Divisions
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+'
+'Change Font
+Cells.Select
+Selection.Font.Name = "Calibri"
+Range("A2:K30000").Select
+Selection.Font.Size = 10
+'
+'Create new Tab for Santa Ana
+Set ws1 = ActiveWorkbook.Worksheets(1)
+ws1.Copy ActiveWorkbook.Sheets(Sheets.Count)
+ActiveSheet.Name = "Santa Ana"
+ActiveSheet.Cells(1, 1).Select
+Selection.Value = "Customer Report - Santa Ana - Alphabetical"
+'
+'Delete all Other Divisions but SA
+ABC = 6
+Do
+If Cells(ABC, 1).Text = "01" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "02"
+With Sheets(1)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("C6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Range("A3:B3").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Range("A1:K1").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Cells.Select
+Cells.EntireColumn.AutoFit
+With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$5"
+        .PrintTitleColumns = ""
+        .Orientation = xlLandscape
+End With
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+'Create new Tab for San Diego
+Set ws1 = ActiveWorkbook.Worksheets(2)
+ws1.Copy ActiveWorkbook.Sheets(Sheets.Count)
+ActiveSheet.Name = "San Diego"
+ActiveSheet.Cells(1, 1).Select
+Selection.Value = "Customer Report - San Diego - Alphabetical"
+'
+'Delete all Other Divisions but SD
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+ABC = 6
+Do
+If Cells(ABC, 1).Text <> "01" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "01"
+With Sheets(2)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+ABC = 6
+Do
+If Cells(ABC, 1).Text = "02" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "04"
+With Sheets(2)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("C6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Range("A3:B3").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Range("A1:K1").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Cells.Select
+Cells.EntireColumn.AutoFit
+With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$5"
+        .PrintTitleColumns = ""
+        .Orientation = xlLandscape
+End With
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+'Create new Tab for Inland
+Set ws1 = ActiveWorkbook.Worksheets(3)
+ws1.Copy ActiveWorkbook.Sheets(Sheets.Count)
+ActiveSheet.Name = "Inland"
+ActiveSheet.Cells(1, 1).Select
+Selection.Value = "Customer Report - Inland - Alphabetical"
+'
+'Delete all Other Divisions but IE
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+ABC = 6
+Do
+If Cells(ABC, 1).Text <> "02" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "02"
+With Sheets(3)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+ABC = 6
+Do
+If Cells(ABC, 1).Text = "04" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "05"
+With Sheets(3)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("C6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Range("A3:B3").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Range("A1:K1").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Cells.Select
+Cells.EntireColumn.AutoFit
+With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$5"
+        .PrintTitleColumns = ""
+        .Orientation = xlLandscape
+End With
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+'Create new Tab for Phoenix
+Set ws1 = ActiveWorkbook.Worksheets(4)
+ws1.Copy ActiveWorkbook.Sheets(Sheets.Count)
+ActiveSheet.Name = "Phoenix"
+ActiveSheet.Cells(1, 1).Select
+Selection.Value = "Customer Report - Phoenix - Alphabetical"
+'
+'Delete all Other Divisions but PHX
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("A6")
+oneRange.Sort key1:=aCell, order1:=xlDescending, Header:=xlNo
+ABC = 6
+Do
+If Cells(ABC, 1).Text <> "04" Then
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = "04"
+With Sheets(4)
+    .rows(ABC & ":" & .rows.Count).Delete
+End With
+Set oneRange = Range("A6:K30000")
+Set aCell = Range("C6")
+oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+Range("A3:B3").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Range("A1:K1").Select
+Selection.Merge
+With Selection
+    .HorizontalAlignment = xlLeft
+    .MergeCells = True
+End With
+Cells.Select
+Cells.EntireColumn.AutoFit
+With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$5"
+        .PrintTitleColumns = ""
+        .Orientation = xlLandscape
+End With
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+
+'
+'Delete Main Tab, Save as Alphabetical
+Application.DisplayAlerts = False
+Sheets("Customer Report").Delete
+amm = Month(Cells(3, 1))
+Ayy = Year(Cells(3, 1))
+Application.DisplayAlerts = True
+    ChDir "C:\Users\USBM-SD\Desktop"
+    ActiveWorkbook.SaveAs Filename:= _
+        "C:\Users\USBM-SD\Desktop\Alphabetical Report " & amm & "-" & Ayy & ".xls", FileFormat:= _
+        xlExcel8, Password:="", WriteResPassword:="", ReadOnlyRecommended:=False _
+        , CreateBackup:=False
+'
+'
+'
+'==========================================================
+'
+'
+'ZipCode Report
+ActiveWorkbook.Sheets("Santa Ana").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("G6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Santa Ana - Zip Code"
+ActiveWorkbook.Sheets("San Diego").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("G6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - San Diego - Zip Code"
+ActiveWorkbook.Sheets("Inland").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("G6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Inland - Zip Code"
+ActiveWorkbook.Sheets("Phoenix").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("G6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Phoenix - Zip Code"
+   ChDir "C:\Users\USBM-SD\Desktop"
+    ActiveWorkbook.SaveAs Filename:= _
+        "C:\Users\USBM-SD\Desktop\Zip Code Report " & amm & "-" & Ayy & ".xls", FileFormat:= _
+        xlExcel8, Password:="", WriteResPassword:="", ReadOnlyRecommended:=False _
+        , CreateBackup:=False
+'
+'
+'
+'
+'=======================================
+'
+'
+'
+'
+'
+'Contractor Report
+ActiveWorkbook.Sheets("Santa Ana").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("J6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Santa Ana - Contractor"
+    ActiveSheet.Cells(6, 12).Select
+    Selection.Value = 1
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+ABC = 6
+Cntrct = 2
+Do
+If Cells(ABC + 1, 10) <> Cells(ABC, 10) Then
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 3, 12).Select
+    Selection.Value = Cntrct
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    Cntrct = Cntrct + 1
+    ABC = ABC + 3
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+ActiveSheet.Cells(ABC, 12).Delete
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+Cells.Select
+Cells.EntireColumn.AutoFit
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+ActiveWorkbook.Sheets("San Diego").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("J6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - San Diego - Contractor"
+    ActiveSheet.Cells(6, 12).Select
+    Selection.Value = 1
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+ABC = 6
+Cntrct = 2
+Do
+If Cells(ABC + 1, 10) <> Cells(ABC, 10) Then
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 3, 12).Select
+    Selection.Value = Cntrct
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    Cntrct = Cntrct + 1
+    ABC = ABC + 3
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+ActiveSheet.Cells(ABC, 12).Delete
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+Cells.Select
+Cells.EntireColumn.AutoFit
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+ActiveWorkbook.Sheets("Inland").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("J6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Inland - Contractor"
+    ActiveSheet.Cells(6, 12).Select
+    Selection.Value = 1
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+ABC = 6
+Cntrct = 2
+Do
+If Cells(ABC + 1, 10) <> Cells(ABC, 10) Then
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 3, 12).Select
+    Selection.Value = Cntrct
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    Cntrct = Cntrct + 1
+    ABC = ABC + 3
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+ActiveSheet.Cells(ABC, 12).Delete
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+Cells.Select
+Cells.EntireColumn.AutoFit
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+ActiveWorkbook.Sheets("Phoenix").Activate
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("J6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Phoenix - Contractor"
+    ActiveSheet.Cells(6, 12).Select
+    Selection.Value = 1
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+ABC = 6
+Cntrct = 2
+Do
+If Cells(ABC + 1, 10) <> Cells(ABC, 10) Then
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 10).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 3, 12).Select
+    Selection.Value = Cntrct
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    Cntrct = Cntrct + 1
+    ABC = ABC + 3
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+ActiveSheet.Cells(ABC, 12).Delete
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+    Next NumRange
+Cells.Select
+Cells.EntireColumn.AutoFit
+ActiveWindow.View = xlPageBreakPreview
+    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+   ChDir "C:\Users\USBM-SD\Desktop"
+    ActiveWorkbook.SaveAs Filename:= _
+        "C:\Users\USBM-SD\Desktop\Contractor Report " & amm & "-" & Ayy & ".xls", FileFormat:= _
+        xlExcel8, Password:="", WriteResPassword:="", ReadOnlyRecommended:=False _
+        , CreateBackup:=False
+Workbooks.Open Filename:="C:\Users\USBM-SD\Desktop\Zip Code Report " & amm & "-" & Ayy & ".xls"
+Workbooks("Contractor Report " & amm & "-" & Ayy & ".xls").Close '
+'
+'
+'
+'
+'
+'=========================================================
+'
+'
+'
+'
+'Sales Rep Report
+ActiveWorkbook.Sheets("Santa Ana").Activate
+Range("A2").Value = Application.Sum(Range(Cells(6, 11), Cells(2000, 11)))
+Range("A4").Value = Application.Count(Range(Cells(6, 11), Cells(2000, 11)))
+Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("I6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Santa Ana - Sales Rep"
+'Insert Spaces and Ad Titles
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Number of Accts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 3, 10).Select
+    Selection.Value = "Average Acct"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+'Total for Each Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Selection.NumberFormat = "0.00"
+    Next NumRange
+'Count Accounts per Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count + 1, 0).Resize(1, 1).Formula = "=Count(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Selection.NumberFormat = "0.00"
+    Next NumRange
+'Average Account per Rep
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Sm = ActiveSheet.Cells(ABC + 1, 11).Value
+    cnt = ActiveSheet.Cells(ABC + 2, 11).Value
+    ActiveSheet.Cells(ABC + 3, 11) = Sm / cnt
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.NumberFormat = "#,##0_);-#,##0"
+    rows(ABC + 5).Select
+    ActiveWindow.SelectedSheets.HPageBreaks.Add before:=ActiveCell
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Value = Range("a2")
+    Selection.NumberFormat = "0.0"
+    Selection.NumberFormat = "0.00"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    ActiveSheet.Cells(ABC + 1, 11).Select
+    Selection.Value = Range("a4")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Sm = Range("A2")
+    cnt = Range("A4")
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.Value = Sm / cnt
+    Selection.NumberFormat = "#,##0.00_);-#,##0.00"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    ActiveSheet.Cells(ABC, 10).Select
+    Selection.Value = "Office Total Monthly Billing"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 1, 10).Select
+    Selection.Value = "Office Total Number of Accounts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Office Average Account"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(4, 1).Value = ""
+    ActiveSheet.Cells(2, 1).Value = ""
+    Columns("K:K").EntireColumn.AutoFit
+    ActiveWindow.View = xlPageBreakPreview
+'    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+ActiveWorkbook.Sheets("San Diego").Activate
+Range("A2").Value = Application.Sum(Range(Cells(6, 11), Cells(2000, 11)))
+Range("A4").Value = Application.Count(Range(Cells(6, 11), Cells(2000, 11)))
+Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("I6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - San Diego - Sales Rep"
+'Insert Spaces and Ad Titles
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Number of Accts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 3, 10).Select
+    Selection.Value = "Average Acct"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+'Total for Each Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Selection.NumberFormat = "0.00"
+    Next NumRange
+'Count Accounts per Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count + 1, 0).Resize(1, 1).Formula = "=Count(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Next NumRange
+'Average Account per Rep
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Sm = ActiveSheet.Cells(ABC + 1, 11).Value
+    cnt = ActiveSheet.Cells(ABC + 2, 11).Value
+    ActiveSheet.Cells(ABC + 3, 11) = Sm / cnt
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.NumberFormat = "#,##0_);-#,##0"
+    rows(ABC + 5).Select
+    ActiveWindow.SelectedSheets.HPageBreaks.Add before:=ActiveCell
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Value = Range("a2")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.NumberFormat = "0.0"
+    Selection.NumberFormat = "0.00"
+    ActiveSheet.Cells(ABC + 1, 11).Select
+    Selection.Value = Range("a4")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Sm = Range("A2")
+    cnt = Range("A4")
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.Value = Sm / cnt
+    Selection.NumberFormat = "#,##0.00_);-#,##0.00"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    ActiveSheet.Cells(ABC, 10).Select
+    Selection.Value = "Office Total Monthly Billing"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 1, 10).Select
+    Selection.Value = "Office Total Number of Accounts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Office Average Account"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(4, 1).Value = ""
+    ActiveSheet.Cells(2, 1).Value = ""
+    Columns("K:K").EntireColumn.AutoFit
+    ActiveWindow.View = xlPageBreakPreview
+'    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+ActiveWorkbook.Sheets("Inland").Activate
+Range("A2").Value = Application.Sum(Range(Cells(6, 11), Cells(2000, 11)))
+Range("A4").Value = Application.Count(Range(Cells(6, 11), Cells(2000, 11)))
+Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("I6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Inland - Sales Rep"
+'Insert Spaces and Ad Titles
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Number of Accts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 3, 10).Select
+    Selection.Value = "Average Acct"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+'Total for Each Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Selection.NumberFormat = "0.00"
+    Next NumRange
+'Count Accounts per Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count + 1, 0).Resize(1, 1).Formula = "=Count(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+
+    Next NumRange
+'Average Account per Rep
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Sm = ActiveSheet.Cells(ABC + 1, 11).Value
+    cnt = ActiveSheet.Cells(ABC + 2, 11).Value
+    ActiveSheet.Cells(ABC + 3, 11) = Sm / cnt
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.NumberFormat = "#,##0_);-#,##0"
+    rows(ABC + 5).Select
+    ActiveWindow.SelectedSheets.HPageBreaks.Add before:=ActiveCell
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Value = Range("a2")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.NumberFormat = "0.0"
+    Selection.NumberFormat = "0.00"
+    ActiveSheet.Cells(ABC + 1, 11).Select
+    Selection.Value = Range("a4")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Sm = Range("A2")
+    cnt = Range("A4")
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.Value = Sm / cnt
+    Selection.NumberFormat = "#,##0.00_);-#,##0.00"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    ActiveSheet.Cells(ABC, 10).Select
+    Selection.Value = "Office Total Monthly Billing"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 1, 10).Select
+    Selection.Value = "Office Total Number of Accounts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Office Average Account"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(4, 1).Value = ""
+    ActiveSheet.Cells(2, 1).Value = ""
+    Columns("K:K").EntireColumn.AutoFit
+    ActiveWindow.View = xlPageBreakPreview
+'    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+ActiveWorkbook.Sheets("Phoenix").Activate
+Range("A2").Value = Application.Sum(Range(Cells(6, 11), Cells(2000, 11)))
+Range("A4").Value = Application.Count(Range(Cells(6, 11), Cells(2000, 11)))
+Set oneRange = Range("A6:K30000")
+    Set aCell = Range("C6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    Set oneRange = Range("A6:K30000")
+    Set aCell = Range("I6")
+    oneRange.Sort key1:=aCell, order1:=xlAscending, Header:=xlNo
+    ActiveSheet.Cells(1, 1).Select
+    Selection.Value = "Customer Report - Phoenix - Sales Rep"
+'Insert Spaces and Add Titles
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    Cells(ABC + 1, 9).EntireRow.Insert Shift:=xlDown
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Font.Underline = True
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Number of Accts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 3, 10).Select
+    Selection.Value = "Average Acct"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+'Total for Each Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count, 0).Resize(1, 1).Formula = "=SUM(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+        Selection.NumberFormat = "0.00"
+    Next NumRange
+'Count Accounts per Rep
+For Each NumRange In Columns("K").SpecialCells(xlConstants, xlNumbers).Areas
+        SumAddr = NumRange.Address(False, False)
+        NumRange.Offset(NumRange.Count + 1, 0).Resize(1, 1).Formula = "=Count(" & SumAddr & ")"
+        C = NumRange.Count
+        Selection.Font.Underline = False
+    Next NumRange
+'Average Account per Rep
+ABC = 6
+Do
+If Cells(ABC + 1, 9) <> Cells(ABC, 9) Then
+    Sm = ActiveSheet.Cells(ABC + 1, 11).Value
+    cnt = ActiveSheet.Cells(ABC + 2, 11).Value
+    ActiveSheet.Cells(ABC + 3, 11) = Sm / cnt
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.NumberFormat = "#,##0_);-#,##0"
+    rows(ABC + 5).Select
+    ActiveWindow.SelectedSheets.HPageBreaks.Add before:=ActiveCell
+    ABC = ABC + 5
+Else
+    ABC = ABC + 1
+End If
+Loop While Not Cells(ABC, 1).Text = ""
+    ActiveSheet.Cells(ABC, 11).Select
+    Selection.Value = Range("a2")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.NumberFormat = "0.0"
+    Selection.NumberFormat = "0.00"
+    ActiveSheet.Cells(ABC + 1, 11).Select
+    Selection.Value = Range("a4")
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Sm = Range("A2")
+    cnt = Range("A4")
+    ActiveSheet.Cells(ABC + 2, 11).Select
+    Selection.Value = Sm / cnt
+    Selection.NumberFormat = "#,##0.00_);-#,##0.00"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 10
+    ActiveSheet.Cells(ABC, 10).Select
+    Selection.Value = "Office Total Monthly Billing"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 1, 10).Select
+    Selection.Value = "Office Total Number of Accounts"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(ABC + 2, 10).Select
+    Selection.Value = "Office Average Account"
+    Selection.Font.Name = "Calibri"
+    Selection.Font.Size = 11
+    Selection.HorizontalAlignment = xlRight
+    ActiveSheet.Cells(4, 1).Value = ""
+    ActiveSheet.Cells(2, 1).Value = ""
+    Columns("K:K").EntireColumn.AutoFit
+    ActiveWindow.View = xlPageBreakPreview
+'    ActiveSheet.VPageBreaks(1).DragOff Direction:=xlToRight, RegionIndex:=1
+    ActiveWindow.View = xlNormalView
+'
+   ChDir "C:\Users\USBM-SD\Desktop"
+    ActiveWorkbook.SaveAs Filename:= _
+        "C:\Users\USBM-SD\Desktop\Rep Report " & amm & "-" & Ayy & ".xls", FileFormat:= _
+        xlExcel8, Password:="", WriteResPassword:="", ReadOnlyRecommended:=False _
+        , CreateBackup:=False '
+Application.ScreenUpdating = True
+
+  Application.EnableEvents = True
+  Application.Calculation = xlCalculationAutomatic
+MsgBox "Complete!"
+End Sub
